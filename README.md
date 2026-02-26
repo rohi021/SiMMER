@@ -224,10 +224,22 @@ The system uses the standard [ROS `joy` package](http://wiki.ros.org/joy) to rea
 | Connection | Example | How it works |
 |---|---|---|
 | **Wired USB** | Xbox/PS controller via USB cable | Plug in; appears as `/dev/input/js0` |
-| **Wireless USB dongle** | Logitech controller with USB receiver | Plug in dongle; appears as `/dev/input/js0` |
+| **Wired USB-C** | EvoFox Elite X2 via USB-C cable | Plug in; appears as `/dev/input/js0` |
+| **2.4GHz wireless USB dongle** | EvoFox Elite X2 / Logitech F710 with USB receiver | Plug in dongle; appears as `/dev/input/js0` |
 | **Bluetooth** | PS4/PS5 DualShock via Bluetooth | Pair via OS Bluetooth settings; appears as `/dev/input/js0` |
 
 The code is **connection-agnostic** — wired and wireless controllers are treated identically because the Linux kernel presents all joystick devices uniformly as `/dev/input/js*`.
+
+**Compatible controllers:** The code assumes an **XInput-compatible** axis layout (standard for most modern PC gamepads). Compatible controllers include:
+
+- Xbox 360 / Xbox One / Xbox Series controllers
+- EvoFox Elite X2 Wireless Gaming Controller (2.4GHz dongle or wired USB-C)
+- Logitech F710 / F310
+- Sony DualShock 4 / DualSense (via `ds4drv` or Linux HID driver)
+
+The axes used are: left stick Y (`axes[1]`) and right stick X/Y (`axes[3]`, `axes[4]`).
+
+> **Note:** On Linux, XInput controllers require the `xpad` kernel module (loaded automatically on most distributions). Verify with `lsmod | grep xpad`.
 
 **Verifying your joystick:**
 
@@ -237,6 +249,9 @@ ls /dev/input/js*
 
 # Test joystick input (install jstest-gtk or use jstest)
 jstest /dev/input/js0
+
+# Verify the xpad driver is loaded (for XInput controllers)
+lsmod | grep xpad
 ```
 
 **Using a different device:** If your controller is not on `/dev/input/js0`, update the `dev` parameter in the launch file:

@@ -16,6 +16,18 @@
 #   Linux kernel presents all joystick devices uniformly as /dev/input/js*.
 #   To change the device, set the 'dev' parameter on the joy_node in the
 #   launch file (e.g. /dev/input/js1 for a second controller).
+#
+#   Axis mapping (assumes XInput-compatible controller layout):
+#     axes[1] — Left stick Y   → controls Z increments (forward/back)
+#     axes[3] — Right stick X  → controls X increments (left/right)
+#     axes[4] — Right stick Y  → controls Y increments (up/down)
+#
+#   Compatible controllers include any XInput gamepad, for example:
+#     - Xbox 360 / Xbox One / Xbox Series controllers
+#     - EvoFox Elite X2 (2.4GHz USB dongle or wired USB-C)
+#     - Logitech F710 / F310
+#     - Sony DualShock 4 / DualSense (via ds4drv or Linux hid driver)
+#   On Linux, XInput controllers typically require the 'xpad' kernel module.
 
 # Import required libraries
 import rospy

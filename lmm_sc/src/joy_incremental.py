@@ -1,6 +1,21 @@
 #!/usr/bin/env python
 
 # ROS node for converting joystick inputs to position increments
+#
+# Joystick Input:
+#   This node subscribes to the /joy topic published by the ROS joy_node
+#   (http://wiki.ros.org/joy). The joy_node reads from a Linux joystick
+#   device (default /dev/input/js0) using the standard Linux joystick API.
+#
+#   Supported connection types (all are handled transparently by the OS):
+#     - Wired USB controllers (e.g. Xbox/PS controller via USB cable)
+#     - Wireless USB dongle controllers (e.g. Logitech with USB receiver)
+#     - Bluetooth controllers (paired via the OS Bluetooth stack)
+#
+#   The connection type (wired/wireless) does not affect this code — the
+#   Linux kernel presents all joystick devices uniformly as /dev/input/js*.
+#   To change the device, set the 'dev' parameter on the joy_node in the
+#   launch file (e.g. /dev/input/js1 for a second controller).
 
 # Import required libraries
 import rospy

@@ -215,6 +215,36 @@ rosrun lmm_sc motor_controller.py    # Servo interface
 rosrun lmm_sc joy_incremental.py     # Joystick teleoperation
 ```
 
+### Joystick Setup
+
+The system uses the standard [ROS `joy` package](http://wiki.ros.org/joy) to read gamepad/joystick input. The `joy_node` reads from a Linux joystick device (`/dev/input/js0` by default) using the Linux joystick API.
+
+**Supported connection types** (all handled transparently by the OS):
+
+| Connection | Example | How it works |
+|---|---|---|
+| **Wired USB** | Xbox/PS controller via USB cable | Plug in; appears as `/dev/input/js0` |
+| **Wireless USB dongle** | Logitech controller with USB receiver | Plug in dongle; appears as `/dev/input/js0` |
+| **Bluetooth** | PS4/PS5 DualShock via Bluetooth | Pair via OS Bluetooth settings; appears as `/dev/input/js0` |
+
+The code is **connection-agnostic** — wired and wireless controllers are treated identically because the Linux kernel presents all joystick devices uniformly as `/dev/input/js*`.
+
+**Verifying your joystick:**
+
+```bash
+# Check that the OS detects the controller
+ls /dev/input/js*
+
+# Test joystick input (install jstest-gtk or use jstest)
+jstest /dev/input/js0
+```
+
+**Using a different device:** If your controller is not on `/dev/input/js0`, update the `dev` parameter in the launch file:
+
+```xml
+<param name="dev" value="/dev/input/js1" />
+```
+
 ---
 
 ## Package Details

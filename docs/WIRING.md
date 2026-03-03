@@ -10,7 +10,7 @@ This document provides complete wiring instructions for connecting two PCA9685 1
 - [Understanding the PCA9685](#understanding-the-pca9685)
 - [I2C Address Configuration](#i2c-address-configuration)
 - [Raspberry Pi 4 GPIO Pinout (I2C)](#raspberry-pi-4-gpio-pinout-i2c)
-- [Wiring Diagram — I2C Bus](#wiring-diagram--i2c-bus)
+- [Wiring Diagram — I2C Bus](#wiring-diagram---i2c-bus)
 - [Power Supply Wiring](#power-supply-wiring)
 - [Servo-to-Channel Mapping](#servo-to-channel-mapping)
 - [Step-by-Step Wiring Procedure](#step-by-step-wiring-procedure)
@@ -48,7 +48,7 @@ Key facts:
 - Default I2C address: **0x40**
 - The address can be changed by bridging solder pads A0–A5 on the board
 - Multiple PCA9685 boards can share a single I2C bus — each board needs a **unique address**
-- The `i2cpwm_board` ROS package addresses servos sequentially: servos 1–16 map to the board at 0x40, servos 17–32 map to the board at 0x41, and so on
+- The `i2cpwm_board` ROS package addresses servos sequentially: servos 1–16 map to the board at 0x40 (channels 0–15), servos 17–32 map to the board at 0x41 (channels 0–15), and so on. The formula is `channel = (servo_number - 1) % 16`.
 
 ---
 
@@ -175,7 +175,7 @@ If you prefer direct connections, wire both boards independently to the Pi GPIO 
 | Parameter | Recommendation |
 |---|---|
 | Voltage | 5.0–6.0 V (match your servo rated voltage) |
-| Current capacity | ≥ 15 A (21 servos × ~0.5–0.7 A each under load) |
+| Current capacity | ≥ 15 A (21 servos × ~0.5–0.7 A each under load, plus safety margin) |
 | Type | Regulated switching PSU or LiPo battery with BEC |
 
 ### Common Ground
@@ -201,7 +201,7 @@ The `i2cpwm_board` ROS package uses a sequential numbering scheme:
 - **Servos 1–16** → Board 1 (0x40), channels 0–15
 - **Servos 17–32** → Board 2 (0x41), channels 0–15
 
-The formula is: `channel = (servo_number - 1) % 16`, `board = (servo_number - 1) / 16 + 1`
+The formula is: `channel = (servo_number - 1) % 16`, `board = floor((servo_number - 1) / 16) + 1`
 
 ### Board 1 — Address 0x40
 
@@ -410,7 +410,7 @@ The servo on Board 1, channel 0 should move to its center position.
 
 4. **Verify servo connector orientation** — Reversing the 3-pin servo connector can damage the servo or the PCA9685. Signal (white/orange) faces the board edge on most PCA9685 breakouts.
 
-5. **Use appropriate wire gauges** — The I2C signal wires (SDA, SCL) can be thin (28 AWG), but the power wires to V+ must be thick enough for the total servo current (16 AWG or thicker for 15+ A).
+5. **Use appropriate wire gauges** — The I2C signal wires (SDA, SCL) can be thin (28 AWG), but the power wires to V+ must be thick enough for the total servo current (14 AWG or thicker for 15+ A continuous).
 
 6. **Keep I2C wires short** — I2C is designed for board-to-board communication. Keep wire lengths under 30 cm for reliable operation at default speeds. If longer runs are needed, reduce the I2C clock speed.
 

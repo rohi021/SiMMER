@@ -19,6 +19,7 @@
 - [Usage](#usage)
 - [Package Details](#package-details)
 - [Configuration](#configuration)
+- [Hardware Wiring](#hardware-wiring)
 - [Control Modules](#control-modules)
 - [Contributing](#contributing)
 - [License](#license)
@@ -267,6 +268,20 @@ Central parameter file for the controller. Key parameters include:
 ### `lmm_model/config/controllers.yaml`
 
 PID controller gains for all 22 position-controlled joints.
+
+---
+
+## Hardware Wiring
+
+For complete wiring instructions on connecting two PCA9685 servo driver boards to a Raspberry Pi 4, see the dedicated **[Wiring Guide](docs/WIRING.md)**. It covers:
+
+- I2C address configuration (0x40 and 0x41)
+- Raspberry Pi GPIO pinout for I2C
+- Daisy-chain and star topology wiring diagrams
+- External servo power supply requirements
+- Servo-to-channel mapping for all 21 servos
+- Step-by-step wiring procedure
+- Verification, troubleshooting, and safety notes
 
 ---
 

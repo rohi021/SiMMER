@@ -21,6 +21,7 @@
 - [Configuration](#configuration)
 - [Control Modules](#control-modules)
 - [Raspberry Pi & Docker Setup](#raspberry-pi--docker-setup)
+- [Joystick Setup](#joystick-setup)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -289,6 +290,18 @@ PID controller gains for all 22 position-controlled joints.
 ## Raspberry Pi & Docker Setup
 
 For deploying on a Raspberry Pi over a mobile hotspot (including Docker-based ROS), see the **[Raspberry Pi Setup Cheat Sheet](docs/RASPBERRY_PI_SETUP.md)**.
+
+---
+
+## Joystick Setup
+
+To connect and test a USB or Bluetooth joystick on the Raspberry Pi, see the **[Joystick Setup section](docs/RASPBERRY_PI_SETUP.md#-joystick-setup-on-raspberry-pi)** in the Pi setup guide.
+
+A quick standalone test (no ROS required):
+
+```bash
+python lmm_sc/src/test_joystick.py
+```
 
 ---
 

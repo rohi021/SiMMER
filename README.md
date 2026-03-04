@@ -20,6 +20,7 @@
 - [Package Details](#package-details)
 - [Configuration](#configuration)
 - [Control Modules](#control-modules)
+- [Raspberry Pi & Docker Setup](#raspberry-pi--docker-setup)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -282,6 +283,12 @@ PID controller gains for all 22 position-controlled joints.
 | `leg_tip_traj_local_to_global.py` | Transforms local leg-tip trajectories to the global frame using TF |
 | `redundancy_resolution.py` | Solves the weighted optimization problem to resolve kinematic redundancy |
 | `inverse_kinematics.py` | Full-body IK solver (`ik_lmm_solver` class) for all legs + manipulator |
+
+---
+
+## Raspberry Pi & Docker Setup
+
+For deploying on a Raspberry Pi over a mobile hotspot (including Docker-based ROS), see the **[Raspberry Pi Setup Cheat Sheet](docs/RASPBERRY_PI_SETUP.md)**.
 
 ---
 

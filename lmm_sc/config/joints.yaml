@@ -1,17 +1,73 @@
-# This file contains the configuration data of all the joints of the lmm
+# ══════════════════════════════════════════════════════════════════════
+# SiMMER HEXAPOD — JOINT CONFIGURATION
+# ══════════════════════════════════════════════════════════════════════
+#
+# HARDWARE:
+#   2x PCA9685 I2C PWM Boards, each with 16 channels (0–15)
+#   Board 1 (0x40): Left-side legs (1,3,5) + manipulator joint 2
+#   Board 2 (0x41): Right-side legs (2,4,6) + manipulator joints 1,3
+#
+# SERVO NUMBER CONVENTION:
+#   servo 1–16   → Board 1, physical channel = servo - 1
+#   servo 17–32  → Board 2, physical channel = (servo - 1) % 16
+#   The i2cpwm_board ROS node handles this routing automatically.
+#
+# CALIBRATION VALUES:
+#   min_input / max_input = raw PCA9685 tick counts (0–4095 range, but
+#   servos typically use 96–530 for the 1ms–2ms pulse at 50Hz PWM)
+#   These were individually tuned per servo to match mechanical limits.
+#   Board 1 servos: typical range ~96–511 (~414 ticks)
+#   Board 2 servos: typical range ~99–530 (~430 ticks)
+#
+# AXIS SIGN CONVENTION:
+#   axis: +1 → increasing angle = increasing PWM tick count
+#   axis: -1 → increasing angle = decreasing PWM tick count (inverted)
+#   This accounts for servo mounting orientation per joint.
+#
+# METADATA FIELDS (not used by motor_controller.py — for documentation only):
+#   servo_id  → unique ID across all servos (1–21)
+#   board_id  → which physical PCA9685 board (1 or 2)
+#
+# ═══════════════════ PHYSICAL CHANNEL MAP ═════════════════════
+#
+# BOARD 1 (0x40):                      BOARD 2 (0x41):
+# Ch  Servo  Joint      Leg            Ch  Servo  Joint      Leg
+# ──  ─────  ─────────  ───            ──  ─────  ─────────  ───
+#  0    1    joint_1_1  Leg1 Hip        0    17   joint_2_1  Leg2 Hip
+#  1    2    joint_1_2  Leg1 Mid        1    18   joint_2_2  Leg2 Mid
+#  2    3    joint_1_3  Leg1 Knee       2    19   joint_2_3  Leg2 Knee
+#  3    —    (spare)                    3    —    (spare)
+#  4    5    joint_3_1  Leg3 Hip        4    21   joint_4_1  Leg4 Hip
+#  5    6    joint_3_2  Leg3 Mid        5    22   joint_4_2  Leg4 Mid
+#  6    7    joint_3_3  Leg3 Knee       6    23   joint_4_3  Leg4 Knee
+#  7    —    (spare)                    7    —    (spare)
+#  8    9    joint_5_1  Leg5 Hip        8    25   joint_6_1  Leg6 Hip
+#  9   10    joint_5_2  Leg5 Mid        9    26   joint_6_2  Leg6 Mid
+# 10   11    joint_5_3  Leg5 Knee      10    27   joint_6_3  Leg6 Knee
+# 11    —    (spare)                   11    —    (spare)
+# 12   13    joint_m_2  Manip J2       12    29   joint_m_1  Manip J1
+# 13    —    (spare)                   13    30   joint_m_3  Manip J3
+# 14    —    (spare)                   14    —    (spare)
+# 15    —    (spare)                   15    —    (spare)
+#
+# ══════════════════════════════════════════════════════════════════════
 
 lmm_joints:
+
+    # ── LEG 1 (Left-Front) — Board 1, Channels 0–2 ──────────────
+
     joint_1_1:
-        servo: 1                     # Servo port on the i2c board
-        min_angle: -1.5708           # Min angle of the joint
-        max_angle: 1.5708            # Max angle of the joint
-        min_input: 96                # Min input to the i2c board for this servo
-        max_input: 510               # Max input to the i2c board for this servo
-        axis: -1                     # Axis multiplier of this servo for CCW motion of joint
-        servo_id: 1                  # Servo identification number
-        board_id: 1                  # i2c board identification number
+        servo: 1                     # Board 1, Channel 0
+        min_angle: -1.5708           # -π/2 rad
+        max_angle: 1.5708            # +π/2 rad
+        min_input: 96                # PCA9685 ticks at min_angle
+        max_input: 510               # PCA9685 ticks at max_angle
+        axis: -1                     # Inverted mounting
+        servo_id: 1                  # Unique servo ID
+        board_id: 1                  # Physical board
+
     joint_1_2:
-        servo: 2
+        servo: 2                     # Board 1, Channel 1
         min_angle: -1.5708
         max_angle: 1.5708
         min_input: 96
@@ -19,44 +75,53 @@ lmm_joints:
         axis: -1
         servo_id: 2
         board_id: 1
+
     joint_1_3:
-        servo: 3
-        min_angle: -3.1416
-        max_angle: 0
+        servo: 3                     # Board 1, Channel 2
+        min_angle: -3.1416           # -π rad
+        max_angle: 0                 # 0 rad
         min_input: 96
         max_input: 510
         axis: +1
         servo_id: 3
         board_id: 1
+
+    # ── LEG 2 (Right-Front) — Board 2, Channels 0–2 ─────────────
+
     joint_2_1:
-        servo: 17
+        servo: 17                    # Board 2, Channel 0
         min_angle: -1.5708
         max_angle: 1.5708
         min_input: 99
         max_input: 529
         axis: -1
-        servo_id: 12
+        servo_id: 11
         board_id: 2
+
     joint_2_2:
-        servo: 18
+        servo: 18                    # Board 2, Channel 1
         min_angle: -1.5708
         max_angle: 1.5708
         min_input: 99
         max_input: 528
         axis: -1
-        servo_id: 13
+        servo_id: 12
         board_id: 2
+
     joint_2_3:
-        servo: 19
-        min_angle: 0
-        max_angle: 3.1416
+        servo: 19                    # Board 2, Channel 2
+        min_angle: 0                 # 0 rad
+        max_angle: 3.1416            # +π rad
         min_input: 99
         max_input: 529
         axis: +1
-        servo_id: 14
+        servo_id: 13
         board_id: 2
+
+    # ── LEG 3 (Left-Middle) — Board 1, Channels 4–6 ─────────────
+
     joint_3_1:
-        servo: 5
+        servo: 5                     # Board 1, Channel 4
         min_angle: -1.5708
         max_angle: 1.5708
         min_input: 96
@@ -64,8 +129,9 @@ lmm_joints:
         axis: -1
         servo_id: 4
         board_id: 1
+
     joint_3_2:
-        servo: 6
+        servo: 6                     # Board 1, Channel 5
         min_angle: -1.5708
         max_angle: 1.5708
         min_input: 96
@@ -73,8 +139,9 @@ lmm_joints:
         axis: -1
         servo_id: 5
         board_id: 1
+
     joint_3_3:
-        servo: 7
+        servo: 7                     # Board 1, Channel 6
         min_angle: -3.1416
         max_angle: 0
         min_input: 96
@@ -82,35 +149,43 @@ lmm_joints:
         axis: +1
         servo_id: 6
         board_id: 1
+
+    # ── LEG 4 (Right-Middle) — Board 2, Channels 4–6 ────────────
+
     joint_4_1:
-        servo: 21
+        servo: 21                    # Board 2, Channel 4
         min_angle: -1.5708
         max_angle: 1.5708
         min_input: 99
         max_input: 529
         axis: -1
-        servo_id: 15
+        servo_id: 14
         board_id: 2
+
     joint_4_2:
-        servo: 22
+        servo: 22                    # Board 2, Channel 5
         min_angle: -1.5708
         max_angle: 1.5708
         min_input: 99
         max_input: 528
         axis: -1
-        servo_id: 16
+        servo_id: 15
         board_id: 2
+
     joint_4_3:
-        servo: 23
+        servo: 23                    # Board 2, Channel 6
         min_angle: 0
         max_angle: 3.1416
         min_input: 100
         max_input: 530
         axis: +1
-        servo_id: 17
+        servo_id: 16
         board_id: 2
+
+    # ── LEG 5 (Left-Rear) — Board 1, Channels 8–10 ─────────────
+
     joint_5_1:
-        servo: 9
+        servo: 9                     # Board 1, Channel 8
         min_angle: -1.5708
         max_angle: 1.5708
         min_input: 96
@@ -118,8 +193,9 @@ lmm_joints:
         axis: -1
         servo_id: 7
         board_id: 1
+
     joint_5_2:
-        servo: 10
+        servo: 10                    # Board 1, Channel 9
         min_angle: -1.5708
         max_angle: 1.5708
         min_input: 95
@@ -127,8 +203,9 @@ lmm_joints:
         axis: -1
         servo_id: 8
         board_id: 1
+
     joint_5_3:
-        servo: 11
+        servo: 11                    # Board 1, Channel 10
         min_angle: -3.1416
         max_angle: 0
         min_input: 96
@@ -136,57 +213,67 @@ lmm_joints:
         axis: +1
         servo_id: 9
         board_id: 1
+
+    # ── LEG 6 (Right-Rear) — Board 2, Channels 8–10 ────────────
+
     joint_6_1:
-        servo: 25
+        servo: 25                    # Board 2, Channel 8
         min_angle: -1.5708
         max_angle: 1.5708
         min_input: 99
         max_input: 528
         axis: -1
-        servo_id: 18
+        servo_id: 17
         board_id: 2
+
     joint_6_2:
-        servo: 26
+        servo: 26                    # Board 2, Channel 9
         min_angle: -1.5708
         max_angle: 1.5708
         min_input: 99
         max_input: 527
         axis: -1
-        servo_id: 19
+        servo_id: 18
         board_id: 2
+
     joint_6_3:
-        servo: 27
+        servo: 27                    # Board 2, Channel 10
         min_angle: 0
         max_angle: 3.1416
         min_input: 99
         max_input: 528
         axis: +1
-        servo_id: 20
+        servo_id: 19
         board_id: 2
+
+    # ── MANIPULATOR — Split across Board 1 (ch 12) and Board 2 (ch 12–13)
+
     joint_m_1:
-        servo: 29
+        servo: 29                    # Board 2, Channel 12
         min_angle: -1.5708
         max_angle: 1.5708
         min_input: 100
         max_input: 530
         axis: +1
-        servo_id: 10
-        board_id: 1
+        servo_id: 20
+        board_id: 2                  # FIX #4: was 1 — WRONG. Calibration (100/530) proves Board 2.
+
     joint_m_2:
-        servo: 13
+        servo: 13                    # Board 1, Channel 12
         min_angle: -1.5708
         max_angle: 1.5708
         min_input: 96
         max_input: 510
         axis: -1
-        servo_id: 21
-        board_id: 2
+        servo_id: 10
+        board_id: 1                  # FIX #5: was 2 — WRONG. Calibration (96/510) proves Board 1.
+
     joint_m_3:
-        servo: 30
+        servo: 30                    # Board 2, Channel 13
         min_angle: -1.5708
         max_angle: 1.5708
         min_input: 100
         max_input: 530
         axis: +1
-        servo_id: 11
-        board_id: 1
+        servo_id: 21
+        board_id: 2                  # FIX #6: was 1 — WRONG. Calibration (100/530) proves Board 2.

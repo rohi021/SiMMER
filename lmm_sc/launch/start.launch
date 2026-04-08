@@ -1,43 +1,93 @@
 <launch>
-  <arg
-    name="lmm" />
-  <param
-    name="robot_description"
-    textfile="$(find lmm_model)/urdf/lmm.urdf" />
-  <node
-    name="joint_state_publisher"
-    pkg="joint_state_publisher"
-    type="joint_state_publisher" />
-    <rosparam
-      param="source_list">
+
+  <!-- ══════════════════════════════════════════════════════════
+       SiMMER Hexapod — Full Start Launch
+       
+       NODE DEPENDENCY CHAIN:
+         robot_state_publisher ──→ needs: robot_description param
+         tip_tf_broadcaster ────→ needs: robot_state_publisher (TF tree)
+         joy_node ──────────────→ needs: /dev/input/js0 (modprobe joydev FIRST)
+         i2cpwm_board ──────────→ needs: I2C bus (i2cdetect shows 0x40, 0x41)
+         joy_incremental ───────→ needs: joy_node publishing /joy
+         master.py ─────────────→ needs: tip_tf_broadcaster + joy_incremental
+         motor_controller ──────→ needs: master.py publishing /lmm_joint_states
+         
+       PRE-LAUNCH CHECKLIST:
+         ✅ sudo modprobe joydev (on Pi host, BEFORE docker exec)
+         ✅ sudo i2cdetect -y 1 shows 0x40, 0x41, 0x70
+         ✅ Robot powered AND lifted off ground
+         ✅ source both setup.bash files
+       ══════════════════════════════════════════════════════════ -->
+
+  <!-- ── ROBOT MODEL ────────────────────────────────────────── -->
+
+  <param name="robot_description"
+         textfile="$(find lmm_model)/urdf/lmm.urdf" />
+
+  <!-- ── JOINT + ROBOT STATE PUBLISHERS ─────────────────────── -->
+
+  <!-- FIX #8: rosparam MUST be INSIDE the node tag (not after self-closing />) -->
+  <node name="joint_state_publisher"
+        pkg="joint_state_publisher"
+        type="joint_state_publisher"
+        output="screen">
+    <rosparam param="source_list">
       ["lmm_joint_states"]
     </rosparam>
-  <node
-    name="robot_state_publisher"
-    pkg="robot_state_publisher"
-    type="robot_state_publisher" />
-  <node
-    name="joy_node"
-    pkg="joy"
-    type="joy_node" />
-  <node
-    name="i2cpwm_board"
-    pkg="i2cpwm_board"
-    type="i2cpwm_board" />
-  <node
-    name="tip_tf_broadcaster"
-    pkg="lmm_sc"
-    type="tip_tf_broadcaster.py" />
-  <node
-    name="joy_incremental"
-    pkg="lmm_sc"
-    type="joy_incremental.py" />
-  <node
-    name="motor_controller"
-    pkg="lmm_sc"
-    type="motor_controller.py" />
-  <node
-    name="lmm_sc_master"
-    pkg="lmm_sc"
-    type="master.py" output="screen" />
+  </node>
+
+  <node name="robot_state_publisher"
+        pkg="robot_state_publisher"
+        type="robot_state_publisher"
+        output="screen" />
+
+  <!-- ── TF BROADCASTER (leg tips + end-effector) ───────────── -->
+
+  <node name="tip_tf_broadcaster"
+        pkg="lmm_sc"
+        type="tip_tf_broadcaster.py"
+        output="screen" />
+
+  <!-- ── JOYSTICK ───────────────────────────────────────────── -->
+  <!-- EvoFox Elite X2 — verified axes: 0,1,2,3 live / 4,5 DEAD -->
+
+  <node name="joy_node"
+        pkg="joy"
+        type="joy_node"
+        output="screen">
+    <param name="dev" value="/dev/input/js0" />
+    <param name="deadzone"       value="0.05" />
+    <param name="autorepeat_rate" value="10" />
+  </node>
+
+  <!-- ── I2C PWM BOARD (HARDWARE — CRITICAL) ────────────────── -->
+  <!-- If this dies, servos are dead. required=true kills all nodes if it crashes. -->
+
+  <node name="i2cpwm_board"
+        pkg="i2cpwm_board"
+        type="i2cpwm_board"
+        required="true"
+        output="screen" />
+
+  <!-- ── JOY → INCREMENTS ───────────────────────────────────── -->
+
+  <node name="joy_incremental"
+        pkg="lmm_sc"
+        type="joy_incremental.py"
+        output="screen" />
+
+  <!-- ── MOTOR CONTROLLER (ANGLES → PWM) ────────────────────── -->
+
+  <node name="motor_controller"
+        pkg="lmm_sc"
+        type="motor_controller.py"
+        output="screen" />
+
+  <!-- ── MASTER (IK + GAIT PLANNER — MAIN BRAIN) ────────────── -->
+
+  <node name="lmm_sc_master"
+        pkg="lmm_sc"
+        type="master.py"
+        output="screen" />
+
 </launch>
